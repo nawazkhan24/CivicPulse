@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CivicPulse — Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0a0a0f;
+      --surface: #12121a;
+      --surface2: #1a1a26;
+      --border: rgba(255,255,255,0.07);
+      --accent: #4f6ef7;
+      --accent2: #7c3aed;
+      --accent-glow: rgba(79,110,247,0.3);
+      --text: #f0f0f8;
+      --text-muted: #6b6b8a;
+      --success: #22d3a5;
+      --error: #f43f5e;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* Background */
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(79,110,247,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(79,110,247,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Navbar */
+    .navbar {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(10,10,15,0.8);
+      backdrop-filter: blur(20px);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Syne', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .logo-icon {
+      width: 34px; height: 34px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .nav-user {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .nav-user span {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .logout-btn {
+      padding: 8px 16px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .logout-btn:hover {
+      border-color: var(--error);
+      color: var(--error);
+    }
+
+    /* Main content */
+    .main {
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 48px 24px;
+    }
+
+    .page-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 8px;
+    }
+
+    .page-subtitle {
+      color: var(--text-muted);
+      font-size: 15px;
+      margin-bottom: 40px;
+    }
+
+    /* Cards grid */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      transition: border-color 0.2s;
+    }
+
+    .card:hover {
+      border-color: rgba(79,110,247,0.2);
+    }
+
+    .card-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .card-value {
+      font-family: 'Syne', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    .card-icon {
+      font-size: 28px;
+      margin-bottom: 12px;
+    }
+
+    /* Full width card */
+    .card-full {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      margin-bottom: 24px;
+    }
+
+    .card-full:hover {
+      border-color: rgba(79,110,247,0.2);
+    }
+
+    .card-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Keywords */
+    .keywords-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .keyword-tag {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(79,110,247,0.1);
+      border: 1px solid rgba(79,110,247,0.2);
+      border-radius: 100px;
+      padding: 6px 14px;
+      font-size: 13px;
+      color: var(--accent);
+    }
+
+    .keyword-remove {
+      cursor: pointer;
+      color: var(--text-muted);
+      font-size: 16px;
+      line-height: 1;
+      transition: color 0.2s;
+    }
+
+    .keyword-remove:hover { color: var(--error); }
+
+    /* Input row */
+    .input-row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .form-input {
+      flex: 1;
+      padding: 12px 16px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .form-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .form-input::placeholder { color: var(--text-muted); }
+
+    .add-btn {
+      padding: 12px 20px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-family: 'Syne', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .add-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(79,110,247,0.4);
+    }
+
+    /* Save button */
+    .save-btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-family: 'Syne', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 16px;
+    }
+
+    .save-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 30px rgba(79,110,247,0.4);
+    }
+
+    /* Message */
+    .message-box {
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      margin-top: 12px;
+      display: none;
+    }
+
+    .message-box.success {
+      display: block;
+      background: rgba(34,211,165,0.1);
+      border: 1px solid rgba(34,211,165,0.2);
+      color: var(--success);
+    }
+
+    .message-box.error {
+      display: block;
+      background: rgba(244,63,94,0.1);
+      border: 1px solid rgba(244,63,94,0.2);
+      color: var(--error);
+    }
+
+    /* Status badge */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(34,211,165,0.1);
+      border: 1px solid rgba(34,211,165,0.2);
+      border-radius: 100px;
+      padding: 4px 12px;
+      font-size: 12px;
+      color: var(--success);
+      margin-top: 8px;
+    }
+
+    .status-dot {
+      width: 6px; height: 6px;
+      background: var(--success);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* Loading */
+    .loading-screen {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      font-family: 'Syne', sans-serif;
+      font-size: 18px;
+      color: var(--text-muted);
+    }
+
+    @media (max-width: 600px) {
+      .cards-grid { grid-template-columns: 1fr; }
+      .navbar { padding: 16px 20px; }
+      .main { padding: 32px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-grid"></div>
+
+  <!-- Loading screen -->
+  <div class="loading-screen" id="loadingScreen">
+    Loading your dashboard...
+  </div>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="logo">
+      <div class="logo-icon">🏛️</div>
+      CivicPulse
+    </div>
+    <div class="nav-right">
+      <div class="nav-user">Hello, <span id="navName">...</span></div>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+  </nav>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="page-title">Your Dashboard</div>
+    <div class="page-subtitle">Manage your agenda monitoring preferences</div>
+
+    <!-- Stats cards -->
+    <div class="cards-grid">
+      <div class="card">
+        <div class="card-icon">🏙️</div>
+        <div class="card-label">Monitoring City</div>
+        <div class="card-value" id="userCity">—</div>
+        <div class="status-badge">
+          <div class="status-dot"></div>
+          Active
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔍</div>
+        <div class="card-label">Keywords Tracked</div>
+        <div class="card-value" id="keywordCount">—</div>
+        <div class="status-badge">
+          <div class="status-dot"></div>
+          Scanning daily
+        </div>
+      </div>
+    </div>
+
+    <!-- Keywords manager -->
+    <div class="card-full">
+      <div class="card-title">🏷️ Your Keywords</div>
+
+      <div class="keywords-list" id="keywordsList">
+        <!-- Keywords appear here -->
+      </div>
+
+      <div class="input-row">
+        <input
+          type="text"
+          class="form-input"
+          id="newKeyword"
+          placeholder="Add a new keyword (e.g. hospital)"
+          onkeydown="if(event.key==='Enter') addKeyword()"
+        />
+        <button class="add-btn" onclick="addKeyword()">+ Add</button>
+      </div>
+
+      <button class="save-btn" onclick="saveKeywords()">
+        💾 Save Keywords
+      </button>
+
+      <div id="saveMessage" class="message-box"></div>
+    </div>
+
+    <!-- Account info -->
+    <div class="card-full">
+      <div class="card-title">👤 Account Info</div>
+      <div style="display:flex; flex-direction:column; gap:14px;">
+        <div>
+          <div class="card-label">Full Name</div>
+          <div style="font-size:15px; margin-top:4px;" id="infoName">—</div>
+        </div>
+        <div>
+          <div class="card-label">Email Address</div>
+          <div style="font-size:15px; margin-top:4px;" id="infoEmail">—</div>
+        </div>
+        <div>
+          <div class="card-label">Agenda URL Being Monitored</div>
+          <div style="font-size:13px; color:var(--accent); margin-top:4px; word-break:break-all;" id="infoUrl">—</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    let currentKeywords = [];
+
+    // ── Check if user is logged in ──
+    const token = localStorage.getItem('token');
+    const userName = localStorage.getItem('userName');
+
+    if (!token) {
+      // Not logged in — send back to login page
+      window.location.href = '/';
+    }
+
+    // ── Load dashboard data ──
+    async function loadDashboard() {
+      try {
+        const res = await fetch('/api/dashboard/', {
+          headers: { 'authorization': token }
+        });
+
+        if (!res.ok) {
+          // Token expired or invalid
+          localStorage.clear();
+          window.location.href = '/';
+          return;
+        }
+
+        const user = await res.json();
+
+        // Fill in all the data
+        document.getElementById('navName').textContent = user.name;
+        document.getElementById('userCity').textContent = user.city || 'Not set';
+        document.getElementById('infoName').textContent = user.name;
+        document.getElementById('infoEmail').textContent = user.email;
+        document.getElementById('infoUrl').textContent = user.agendaUrl || 'Not set';
+
+        // Load keywords
+        currentKeywords = user.keywords || [];
+        document.getElementById('keywordCount').textContent = currentKeywords.length;
+        renderKeywords();
+
+        // Hide loading screen
+        document.getElementById('loadingScreen').style.display = 'none';
+
+      } catch (error) {
+        console.error('Dashboard error:', error);
+        document.getElementById('loadingScreen').style.display = 'none';
+      }
+    }
+
+    // ── Render keywords as tags ──
+    function renderKeywords() {
+      const list = document.getElementById('keywordsList');
+      document.getElementById('keywordCount').textContent = currentKeywords.length;
+
+      if (currentKeywords.length === 0) {
+        list.innerHTML = '<div style="color:var(--text-muted);font-size:14px;">No keywords yet — add some below</div>';
+        return;
+      }
+
+      list.innerHTML = currentKeywords.map((kw, index) => `
+        <div class="keyword-tag">
+          ${kw}
+          <span class="keyword-remove" onclick="removeKeyword(${index})">×</span>
+        </div>
+      `).join('');
+    }
+
+    // ── Add keyword ──
+    function addKeyword() {
+      const input = document.getElementById('newKeyword');
+      const value = input.value.trim().toLowerCase();
+
+      if (!value) return;
+
+      if (currentKeywords.includes(value)) {
+        showMessage('saveMessage', '⚠️ Keyword already exists', 'error');
+        return;
+      }
+
+      currentKeywords.push(value);
+      renderKeywords();
+      input.value = '';
+    }
+
+    // ── Remove keyword ──
+    function removeKeyword(index) {
+      currentKeywords.splice(index, 1);
+      renderKeywords();
+    }
+
+    // ── Save keywords to database ──
+    async function saveKeywords() {
+      try {
+        const res = await fetch('/api/dashboard/keywords', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'authorization': token
+          },
+          body: JSON.stringify({
+            keywords: currentKeywords.join(',')
+          })
+        });
+
+        const result = await res.json();
+
+        if (res.ok) {
+          showMessage('saveMessage', '✅ Keywords saved successfully!', 'success');
+        } else {
+          showMessage('saveMessage', '❌ ' + result.message, 'error');
+        }
+
+      } catch (error) {
+        showMessage('saveMessage', '❌ Something went wrong', 'error');
+      }
+    }
+
+    // ── Show message helper ──
+    function showMessage(id, text, type) {
+      const el = document.getElementById(id);
+      el.textContent = text;
+      el.className = `message-box ${type}`;
+      setTimeout(() => { el.className = 'message-box'; }, 3000);
+    }
+
+    // ── Logout ──
+    function logout() {
+      localStorage.clear();
+      window.location.href = '/';
+    }
+
+    // Load everything
+    loadDashboard();
+  </script>
+
+</body>
+</html>
